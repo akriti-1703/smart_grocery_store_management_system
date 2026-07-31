@@ -1,35 +1,20 @@
-from sql_connection import get_sql_connection
 
-
-def get_uom(connection):
+def get_uoms(connection):
     cursor = connection.cursor()
-
-    try:
-        query = "SELECT uom_id, uom_name FROM uom"
-        cursor.execute(query)
-
-        response = []
-
-        for uom_id, uom_name in cursor.fetchall():
-            response.append({
-                "uom_id": uom_id,
-                "uom_name": uom_name
-            })
-
-        return response
-
-    except Exception as e:
-        print("Error while fetching UOMs:", e)
-        return []
-
-    finally:
-        cursor.close()
+    query = ("select * from uom")
+    cursor.execute(query)
+    response = []
+    for (uom_id, uom_name) in cursor:
+        response.append({
+            'uom_id': uom_id,
+            'uom_name': uom_name
+        })
+    return response
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    from sql_connection import get_sql_connection
+
     connection = get_sql_connection()
-
-    try:
-        print(get_uoms(connection))
-    finally:
-        connection.close()
+    # print(get_all_products(connection))
+    print(get_uoms(connection))
