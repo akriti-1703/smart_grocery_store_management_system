@@ -3,10 +3,10 @@ from flask_cors import CORS
 import json
 import os
 
-from sql_connection import get_sql_connection
-import products_dao
-import order_dao
-import uom_dao
+from backend.sql_connection import get_sql_connection
+from backend import products_dao
+from backend import order_dao
+from backend import uom_dao
 
 app = Flask(
     __name__,
