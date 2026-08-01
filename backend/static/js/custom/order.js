@@ -19,9 +19,9 @@ $("#addMoreButton").click(function () {
     var row = $(".product-box").html();
     $(".product-box-extra").append(row);
     $(".product-box-extra .remove-row").last().removeClass('hideit');
-    $(".product-box-extra .product-price").last().text('0.0');
+    $(".product-box-extra .product-price").last().val('0.0');
     $(".product-box-extra .product-qty").last().val('1');
-    $(".product-box-extra .product-total").last().text('0.0');
+    $(".product-box-extra .product-total").last().val('0.0');
 });
 
 $(document).on("click", ".remove-row", function (){
@@ -111,7 +111,7 @@ $("#saveOrder").on("click", function () {
     }
 
 
-    console.log(requestPayload);
+    alert(JSON.stringify(requestPayload, null, 2));
 
 
     $.ajax({
