@@ -1,5 +1,5 @@
 // Define your api here
-var BASE_URL = "";
+var BASE_URL = "https://smart-grocery-store-management-system-4.onrender.com/getProducts";
 
 var productListApiUrl = BASE_URL + "/getProducts";
 var uomListApiUrl = BASE_URL + "/getUOM";
