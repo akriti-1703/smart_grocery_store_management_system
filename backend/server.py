@@ -2,13 +2,16 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from sql_connection import get_sql_connection
 import json
+import os
 
 import products_dao
 import order_dao
 import uom_dao
 
 app = Flask(__name__)
-CORS(app)
+
+# Allow requests from your Netlify frontend
+CORS(app, origins=["https://smart-grocery-store-management-system.netlify.app"])
 
 # Database Connection
 connection = get_sql_connection()
@@ -96,11 +99,12 @@ if __name__ == "__main__":
     print("=========================================")
     print(" Grocery Store Management System API")
     print(" Server Started Successfully")
-    print(" http://127.0.0.1:5000")
     print("=========================================")
+
+    port = int(os.environ.get("PORT", 5000))
 
     app.run(
         host="0.0.0.0",
-        port=5000,
-        debug=True
+        port=port,
+        debug=False
     )
