@@ -1,24 +1,30 @@
 // Define your api here
-var BASE_URL = "https://smart-grocery-store-management-system-4.onrender.com/getProducts";
+// Backend URL
+var BASE_URL = "https://smart-grocery-store-management-system-4.onrender.com";
 
+// API URLs
 var productListApiUrl = BASE_URL + "/getProducts";
 var uomListApiUrl = BASE_URL + "/getUOM";
 var productSaveApiUrl = BASE_URL + "/insertProduct";
 var productDeleteApiUrl = BASE_URL + "/deleteProduct";
 var orderListApiUrl = BASE_URL + "/getAllOrders";
 var orderSaveApiUrl = BASE_URL + "/insertOrder";
-// For product drop in order
 var productsApiUrl = 'https://fakestoreapi.com/products';
 function callApi(method, url, data) {
     $.ajax({
         method: method,
         url: url,
-        data: data
-    }).done(function( msg ) {
-        window.location.reload();
+        data: data,
+        success: function(response){
+            console.log(response);
+            location.reload();
+        },
+        error: function(err){
+            console.log(err);
+            alert("API Error");
+        }
     });
 }
-
 function calculateValue() {
     var total = 0;
     $(".product-item").each(function( index ) {

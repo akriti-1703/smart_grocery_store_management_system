@@ -17,7 +17,7 @@ app = Flask(
 CORS(app)
 
 # Database Connection
-connection = get_sql_connection()
+
 
 
 # ---------------- FRONTEND ROUTES ----------------
@@ -41,66 +41,62 @@ def order():
 
 @app.route("/getUOM", methods=["GET"])
 def get_uom():
-    return jsonify(uom_dao.get_uoms(connection))
+    connection = get_sql_connection()
+    try:
+        return jsonify(uom_dao.get_uoms(connection))
+    finally:
+        connection.close()
 
 
 @app.route("/getProducts", methods=["GET"])
 def get_products():
-    return jsonify(products_dao.get_all_products(connection))
+    connection = get_sql_connection()
+    try:
+        return jsonify(products_dao.get_all_products(connection))
+    finally:
+        connection.close()
 
 
 @app.route("/insertProduct", methods=["POST"])
 def insert_product():
+    connection = get_sql_connection()
+    try:
+        request_payload = json.loads(request.form["data"])
+        product_id = products_dao.insert_new_product(connection, request_payload)
 
-    request_payload = json.loads(request.form["data"])
-
-    product_id = products_dao.insert_new_product(
-        connection,
-        request_payload
-    )
-
-    return jsonify({
-        "product_id": product_id,
-        "message": "Product inserted successfully"
-    })
-
+        return jsonify({
+            "product_id": product_id,
+            "message": "Product inserted successfully"
+        })
+    finally:
+        connection.close()
 
 @app.route("/deleteProduct", methods=["POST"])
 def delete_product():
+    connection = get_sql_connection()
+    try:
+        product_id = request.form["product_id"]
 
-    product_id = request.form["product_id"]
+        deleted = products_dao.delete_product(
+            connection,
+            product_id
+        )
 
-    deleted = products_dao.delete_product(
-        connection,
-        product_id
-    )
-
-    return jsonify({
-        "product_id": deleted,
-        "message": "Product deleted successfully"
-    })
+        return jsonify({
+            "product_id": deleted,
+            "message": "Product deleted successfully"
+        })
+    finally:
+        connection.close()
 
 
 @app.route("/getAllOrders", methods=["GET"])
 def get_all_orders():
-    return jsonify(order_dao.get_all_orders(connection))
-
-
-@app.route("/insertOrder", methods=["POST"])
-def insert_order():
-
-    request_payload = json.loads(request.form["data"])
-
-    order_id = order_dao.insert_order(
-        connection,
-        request_payload
-    )
-
-    return jsonify({
-        "order_id": order_id,
-        "message": "Order inserted successfully"
-    })
-
+    connection = get_sql_connection()
+    try:
+        return jsonify(order_dao.get_all_orders(connection))
+    finally:
+        connection.close()
 
 # ---------------- ERROR HANDLER ----------------
 

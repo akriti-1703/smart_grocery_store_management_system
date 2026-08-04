@@ -2,19 +2,28 @@ var productPrices = {};
 
 $(function () {
     //Json data by api call for order table
-    $.get(productListApiUrl, function (response) {
-        productPrices = {}
-        if(response) {
-            var options = '<option value="">--Select--</option>';
-            $.each(response, function(index, product) {
-                options += '<option value="'+ product.product_id +'">'+ product.name +'</option>';
-                productPrices[product.product_id] = product.price_per_unit;
-            });
-            $(".product-box").find("select").empty().html(options);
-        }
-    });
-});
+  $.get(productListApiUrl)
+.done(function(response) {
+    console.log("Products:", response);
 
+    productPrices = {};
+
+    var options = '<option value="">--Select--</option>';
+
+    $.each(response, function(index, product) {
+        options += `<option value="${product.product_id}">
+                        ${product.name}
+                    </option>`;
+
+        productPrices[product.product_id] = product.price_per_unit;
+    });
+
+    $(".product-box").find("select").html(options);
+})
+.fail(function(xhr) {
+    console.log(xhr);
+    alert("Cannot connect to backend");
+});
 $("#addMoreButton").click(function () {
     var row = $(".product-box").html();
     $(".product-box-extra").append(row);
