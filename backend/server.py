@@ -98,6 +98,33 @@ def get_all_orders():
     finally:
         connection.close()
 
+@app.route("/insertOrder", methods=["POST"])
+def insert_order():
+    connection = get_sql_connection()
+
+    try:
+        request_payload = json.loads(request.form["data"])
+
+        order_id = order_dao.insert_order(
+            connection,
+            request_payload
+        )
+
+        return jsonify({
+            "order_id": order_id,
+            "message": "Order inserted successfully"
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+    finally:
+        connection.close()
 # ---------------- ERROR HANDLER ----------------
 
 @app.errorhandler(Exception)
