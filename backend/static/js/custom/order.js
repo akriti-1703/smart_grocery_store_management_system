@@ -2,40 +2,75 @@ var productPrices = {};
 
 $(document).ready(function () {
 
-    // Load products
-    $.get(productListApiUrl)
-        .done(function (response) {
+    // Load Products
+    $.ajax({
+        url: productListApiUrl,
+        type: "GET",
+        success: function (response) {
 
             console.log("Products:", response);
 
-            productPrices = {};
+            var options = '<option value="">--Select Product--</option>';
 
-            var options = '<option value="">--Select--</option>';
+            productPrices = {};
 
             $.each(response, function (index, product) {
 
-                options += '<option value="' + product.product_id + '">' +
+                options +=
+                    '<option value="' + product.product_id + '">' +
                     product.name +
                     '</option>';
 
                 productPrices[product.product_id] = product.price_per_unit;
             });
 
-            $(".product-box select").html(options);
-        })
-        .fail(function (xhr) {
+            $(".product-box .cart-product").html(options);
+
+            // Add first row automatically
+            $("#addMoreButton").click();
+        },
+        error: function (xhr) {
             console.log(xhr);
-            alert("Cannot connect to backend");
-        });
+            alert("Cannot load products");
+        }
+    });
 
 
-    // Add More Button
+    // Add More
     $("#addMoreButton").click(function () {
 
-        var row = $(".product-box").html();
+        var row = $(".product-box .product-item").clone();
+
+        row.find(".cart-product")
+            .html($(".product-box .cart-product").html())
+            .val("");
+
+        row.find(".product-price").val("0.0");
+        row.find(".product-qty").val("1");
+        row.find(".product-total").val("0.0");
 
         $("#itemsInOrder").append(row);
+    });
 
+
+    // Product Change
+    $(document).on("change", ".cart-product", function () {
+
+        var productId = $(this).val();
+
+        var price = productPrices[productId] || 0;
+
+        $(this)
+            .closest(".product-item")
+            .find(".product-price")
+            .val(price);
+
+        calculateValue();
+    });
+
+
+    // Quantity Change
+    $(document).on("keyup change", ".product-qty", function () {
         calculateValue();
     });
 
@@ -47,114 +82,47 @@ $(document).ready(function () {
     });
 
 
-    // Product Change
-    $(document).on("change", ".cart-product", function () {
-
-        var product_id = $(this).val();
-        var price = productPrices[product_id] || 0;
-
-        $(this)
-            .closest(".product-item")
-            .find(".product-price")
-            .val(price);
-
-        calculateValue();
-
-    });
-
-
-    // Quantity Change
-    $(document).on("keyup change", ".product-qty", function () {
-        calculateValue();
-    });
-
-
     // Save Order
     $("#saveOrder").click(function () {
 
-        var formData = $("form").serializeArray();
-
         var requestPayload = {
-            customer_name: "",
-            grand_total: 0,
+            customer_name: $("#customerName").val(),
+            grand_total: $("#product_grand_total").val(),
             order_details: []
         };
 
-        for (var i = 0; i < formData.length; i++) {
+        $(".product-item").each(function () {
 
-            var element = formData[i];
+            var product = $(this).find(".cart-product").val();
 
-            switch (element.name) {
+            if (product != "") {
 
-                case "customerName":
-                    requestPayload.customer_name = element.value;
-                    break;
+                requestPayload.order_details.push({
+                    product_id: product,
+                    quantity: $(this).find(".product-qty").val(),
+                    total_price: $(this).find(".product-total").val()
+                });
 
-                case "product_grand_total":
-                    requestPayload.grand_total = element.value;
-                    break;
-
-                case "product":
-
-                    if (element.value !== "") {
-
-                        requestPayload.order_details.push({
-                            product_id: element.value,
-                            quantity: 0,
-                            total_price: 0
-                        });
-
-                    }
-
-                    break;
-
-                case "qty":
-
-                    if (requestPayload.order_details.length > 0) {
-
-                        requestPayload.order_details[
-                            requestPayload.order_details.length - 1
-                        ].quantity = element.value;
-
-                    }
-
-                    break;
-
-                case "item_total":
-
-                    if (requestPayload.order_details.length > 0) {
-
-                        requestPayload.order_details[
-                            requestPayload.order_details.length - 1
-                        ].total_price = element.value;
-
-                    }
-
-                    break;
             }
-        }
+
+        });
+
+        console.log(requestPayload);
 
         $.ajax({
-
             url: orderSaveApiUrl,
-
             type: "POST",
-
             data: {
                 data: JSON.stringify(requestPayload)
             },
-
             success: function (response) {
                 alert("Order Saved Successfully");
-                console.log(response);
                 location.reload();
             },
-
             error: function (xhr) {
                 console.log(xhr.responseText);
                 alert("Error while saving order");
             }
-
         });
 
     });
